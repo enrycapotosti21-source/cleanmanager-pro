@@ -32,10 +32,19 @@ export default function Impostazioni() {
         <label><span className="lbl">Massa grassa % (stima)</span><input className="inp" inputMode="decimal" value={f.bodyFatPct} onChange={num('bodyFatPct')} /></label>
         <button className="btn col-span-2" onClick={async () => { await saveSettings(f); setMsg('Salvato'); }}>Salva</button>
       </div>
+      <div className="card space-y-3">
+        <div><h2 className="font-semibold">Coach AI</h2><p className="text-xs text-zinc-500">Chiave API Anthropic (console.anthropic.com). Resta solo su questo dispositivo e non viene mai esportata. Il coach funziona online e consuma credito a ogni risposta.</p></div>
+        <input className="inp" type="password" autoComplete="off" placeholder="sk-ant-…" value={f.apiKey} onChange={e => setF({ ...f, apiKey: e.target.value.trim() })} />
+        <label><span className="lbl">Modello</span><select className="inp" value={f.model} onChange={e => setF({ ...f, model: e.target.value })}>
+          <option value="claude-opus-5-5">Opus 5.5 — il più accurato (consigliato)</option><option value="claude-sonnet-5-5">Sonnet 5.5 — più veloce ed economico</option></select></label>
+        <label className="flex items-center gap-3"><input type="checkbox" className="h-5 w-5 accent-emerald-600" checked={f.webSearch} onChange={e => setF({ ...f, webSearch: e.target.checked })} /><span className="text-sm">Ricerca web per risposte aggiornate (studi, nutrizione, biomeccanica)</span></label>
+        <label><span className="lbl">Note per il coach</span><textarea className="inp" rows={3} placeholder="Infortuni, cibi che eviti, orari, attrezzatura, obiettivi…" value={f.coachNotes} onChange={e => setF({ ...f, coachNotes: e.target.value })} /></label>
+        <button className="btn w-full" onClick={async () => { await saveSettings(f); setMsg('Salvato'); }}>Salva</button>
+      </div>
       <div className="card space-y-2"><h2 className="font-semibold">Dati</h2>
         <button className="btn-ghost w-full" onClick={doExport}>Esporta JSON</button>
         <label className="btn-ghost block text-center">Importa JSON<input type="file" accept="application/json" className="hidden" onChange={doImport} /></label>
-        <p className="text-xs text-zinc-500">Tutto resta sul telefono (IndexedDB). Nessun dato viene inviato fuori.</p></div>
+        <p className="text-xs text-zinc-500">I dati restano sul telefono (IndexedDB). Escono solo le domande al coach (e le foto che scegli di far analizzare) verso Anthropic.</p></div>
       {msg && <p className="text-sm">{msg}</p>}
     </div>
   );

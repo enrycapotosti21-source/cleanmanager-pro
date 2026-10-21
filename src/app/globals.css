@@ -1,8 +1,13 @@
 @tailwind base; @tailwind components; @tailwind utilities;
 :root { color-scheme: light dark; }
-body { @apply bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100; -webkit-tap-highlight-color: transparent; }
+html, body { overscroll-behavior: none; }
+body { @apply bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
+button, a, nav, label, summary { -webkit-user-select: none; user-select: none; touch-action: manipulation; }
 .card { @apply rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-4; }
-.btn { @apply rounded-xl bg-emerald-600 text-white font-semibold px-4 py-3 text-base active:bg-emerald-700 disabled:opacity-40; }
-.btn-ghost { @apply rounded-xl border border-zinc-300 dark:border-zinc-700 px-4 py-3 font-medium active:bg-zinc-100 dark:active:bg-zinc-800; }
+.btn { @apply rounded-xl bg-emerald-600 text-white font-semibold px-4 py-3.5 text-base active:bg-emerald-700 disabled:opacity-40; }
+.btn-ghost { @apply rounded-xl border border-zinc-300 dark:border-zinc-700 px-4 py-3.5 font-medium active:bg-zinc-100 dark:active:bg-zinc-800 disabled:opacity-40; }
 .inp { @apply w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-transparent px-3 py-3 text-base; }
 .lbl { @apply text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400; }
+.step { @apply h-12 w-12 shrink-0 rounded-xl border border-zinc-300 dark:border-zinc-700 text-xl font-semibold active:bg-zinc-100 dark:active:bg-zinc-800; }
+.chip { @apply rounded-full border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-sm active:bg-zinc-100 dark:active:bg-zinc-800; }
+.shell { @apply mx-auto w-full max-w-md md:max-w-2xl lg:max-w-3xl; }

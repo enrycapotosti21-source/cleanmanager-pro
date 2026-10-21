@@ -69,3 +69,39 @@ describe('nutrizione', () => {
     expect(kcalSuggestion([day('2026-10-26', 95), day('2026-11-02', 94.5), day('2026-11-09', 94)])).toBeNull();
   });
 });
+
+import { moveSlot, planFor, setOverride, DEFAULT_SCHEDULE, trainingDays, runDays } from '../schedule';
+import { buildContext } from '../coachContext';
+import { defaultSettings } from '../db';
+
+describe('piano flessibile', () => {
+  const base = { schedule: { ...DEFAULT_SCHEDULE }, overrides: {} };
+  it('usa il piano settimanale (2026-10-26 è lunedì)', () => {
+    expect(planFor(base, '2026-10-26')).toEqual({ slot: 'lowerA', moved: false });
+    expect(planFor(base, '2026-10-28').slot).toBe('corsa-qualita');
+  });
+  it('l’eccezione ha la precedenza e si può rimuovere', () => {
+    const o = setOverride({}, '2026-10-26', 'riposo');
+    expect(planFor({ ...base, overrides: o }, '2026-10-26')).toEqual({ slot: 'riposo', moved: true });
+    expect(planFor({ ...base, overrides: setOverride(o, '2026-10-26', null) }, '2026-10-26').moved).toBe(false);
+  });
+  it('sposta la seduta di oggi su un altro giorno', () => {
+    const o = moveSlot(base, '2026-10-26', '2026-10-27');
+    expect(planFor({ ...base, overrides: o }, '2026-10-26').slot).toBe('riposo');
+    expect(planFor({ ...base, overrides: o }, '2026-10-27').slot).toBe('lowerA');
+  });
+  it('conta sedute e corse', () => { expect([trainingDays(DEFAULT_SCHEDULE), runDays(DEFAULT_SCHEDULE)]).toEqual([4, 2]); });
+});
+
+describe('contesto del coach', () => {
+  it('include profilo, piano e dati senza crash anche a vuoto', () => {
+    const c = buildContext({ settings: defaultSettings(), daily: [], sets: [], runs: [], checkins: [], today: '2026-10-26' });
+    expect(c).toMatch(/192 cm/); expect(c).toMatch(/Lun Lower A/); expect(c).toMatch(/Nessun dato giornaliero/);
+  });
+  it('riporta pesi, carichi e dolori recenti', () => {
+    const c = buildContext({ settings: defaultSettings(), today: '2026-10-27', runs: [], checkins: [],
+      daily: [{ date: '2026-10-26', weightKg: 95, pain: { polso: 4 } }],
+      sets: [{ exerciseId: 'hack', date: '2026-10-26', setIndex: 0, kg: 100, reps: 9, rir: 3 }] });
+    expect(c).toMatch(/95 kg/); expect(c).toMatch(/polso 4/); expect(c).toMatch(/100×9@3/);
+  });
+});

@@ -61,12 +61,16 @@ function ExerciseCard({ ex, weekNum, plannedRir, sets, alertsForAlt, date, onSet
   const todays = (sets ?? []).filter(l => l.exerciseId === ex.id && l.date === date);
   const sug = suggest(ex, (sets ?? []).filter(l => l.date !== date), plannedRir);
   const alt = alternativeFor(ex, alertsForAlt);
-  const lastKg = last?.sets[0]?.kg;
+  const prevSet = todays[todays.length - 1] ?? last?.sets[todays.length] ?? last?.sets[0];
+  const lastKg = prevSet?.kg;
   const [kg, setKg] = useState<string>(''); const [reps, setReps] = useState<string>(''); const [rir, setRir] = useState<string>(String(plannedRir));
+  const curKg = Number(kg || lastKg || 0), curReps = Number(reps || prevSet?.reps || ex.repMax);
+  const step = ex.fundamental ? 5 : 2.5;
+  const bump = (set: (v: string) => void, cur: number, d: number) => set(String(Math.max(0, Math.round((cur + d) * 10) / 10)));
 
   const log = async () => {
-    const k = Number(kg || lastKg || 0), r = Number(reps || ex.repMin);
-    await db.sets.add({ exerciseId: ex.id, date, setIndex: todays.length, kg: k, reps: r, rir: Number(rir) });
+    await db.sets.add({ exerciseId: ex.id, date, setIndex: todays.length, kg: curKg, reps: curReps, rir: Number(rir) });
+    setKg(String(curKg)); setReps(String(curReps));
     onSetDone();
   };
 
@@ -77,13 +81,20 @@ function ExerciseCard({ ex, weekNum, plannedRir, sets, alertsForAlt, date, onSet
       {alt && <p className="text-sm rounded-lg bg-amber-100 dark:bg-amber-950/50 p-2">⚠️ Alternativa: {alt}</p>}
       {last && <p className="text-sm">Ultima volta: {last.sets.map(x => `${x.kg}×${x.reps}`).join(' · ')}</p>}
       <p className={`text-sm font-medium ${sug.kind === 'increase' ? 'text-emerald-600' : sug.kind === 'decrease' ? 'text-red-500' : 'text-zinc-500'}`}>{sug.message}</p>
-      {todays.map(l => <p key={l.id} className="text-sm tabular-nums">✓ Serie {l.setIndex + 1}: {l.kg} kg × {l.reps} · RIR {l.rir}</p>)}
+      {todays.map(l => <p key={l.id} className="text-sm tabular-nums flex justify-between"><span>✓ Serie {l.setIndex + 1}: {l.kg} kg × {l.reps} · RIR {l.rir}</span><button className="text-zinc-400 px-2" aria-label="elimina serie" onClick={() => db.sets.delete(l.id!)}>✕</button></p>)}
       {todays.length < nSets && (
-        <div className="grid grid-cols-3 gap-2">
-          <input className="inp" inputMode="decimal" placeholder={lastKg ? `${lastKg} kg` : 'kg'} value={kg} onChange={e => setKg(e.target.value)} />
-          <input className="inp" inputMode="numeric" placeholder={`${ex.repMax} rep`} value={reps} onChange={e => setReps(e.target.value)} />
-          <input className="inp" inputMode="numeric" placeholder="RIR" value={rir} onChange={e => setRir(e.target.value)} />
-          <button className="btn col-span-3" onClick={log}>Serie {todays.length + 1}/{nSets} fatta</button>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2"><span className="lbl w-12">kg</span>
+            <button className="step" onClick={() => bump(setKg, curKg, -step)}>−</button>
+            <input className="inp text-center text-lg font-semibold" inputMode="decimal" value={kg || (lastKg ?? '')} onChange={e => setKg(e.target.value)} />
+            <button className="step" onClick={() => bump(setKg, curKg, step)}>+</button></div>
+          <div className="flex items-center gap-2"><span className="lbl w-12">rep</span>
+            <button className="step" onClick={() => bump(setReps, curReps, -1)}>−</button>
+            <input className="inp text-center text-lg font-semibold" inputMode="numeric" value={reps || (prevSet?.reps ?? ex.repMax)} onChange={e => setReps(e.target.value)} />
+            <button className="step" onClick={() => bump(setReps, curReps, 1)}>+</button></div>
+          <div className="flex items-center gap-2"><span className="lbl w-12">RIR</span>
+            {[0, 1, 2, 3, 4].map(r => <button key={r} className={Number(rir) === r ? 'btn flex-1 !py-2.5' : 'btn-ghost flex-1 !py-2.5'} onClick={() => setRir(String(r))}>{r}</button>)}</div>
+          <button className="btn w-full" onClick={log}>Serie {todays.length + 1}/{nSets} fatta</button>
         </div>
       )}
     </section>

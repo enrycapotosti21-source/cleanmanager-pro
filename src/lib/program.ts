@@ -41,17 +41,6 @@ export const SESSIONS: Record<SessionId, Session> = {
   ] },
 };
 
-/** 0 = domenica … 6 = sabato (Date.getDay) */
-export const WEEK: Record<number, { kind: 'session' | 'run' | 'rest'; session?: SessionId; run?: 'qualita' | 'facile'; label: string }> = {
-  1: { kind: 'session', session: 'lowerA', label: 'Lower A' },
-  2: { kind: 'session', session: 'upperA', label: 'Upper A' },
-  3: { kind: 'run', run: 'qualita', label: 'Corsa di qualità' },
-  4: { kind: 'session', session: 'upperB', label: 'Upper B' },
-  5: { kind: 'session', session: 'lowerB', label: 'Lower B' },
-  6: { kind: 'rest', label: 'Riposo + 10′ mobilità' },
-  0: { kind: 'run', run: 'facile', label: 'Corsa facile' },
-};
-
 export const PAIN_JOINTS = ['polso', 'gomito', 'ginocchio', 'spalla', 'schiena'] as const;
 
 export const TARGETS = { kcal: [2650, 2750], protein: [160, 180], steps: [8000, 10000], sleep: [7, 9] } as const;
