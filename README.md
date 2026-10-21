@@ -14,7 +14,7 @@ npx serve out        # prova la build (service worker attivo)
 ```
 
 ## Installarla sul telefono
-La PWA richiede HTTPS (o localhost). Pubblica la cartella `out/` su un hosting statico gratuito (Netlify, Vercel, Cloudflare Pages, GitHub Pages in radice), poi:
+La PWA richiede HTTPS (o localhost). Il modo più semplice è Vercel: vercel.com → *Add New → Project* → importa questo repository (rileva Next.js da solo, nessuna impostazione da cambiare) → *Deploy*. In alternativa va bene qualunque hosting statico con la cartella `out/`. Poi:
 - **iPhone (Safari):** apri l'URL → Condividi → *Aggiungi alla schermata Home*.
 - **Android (Chrome):** menu ⋮ → *Installa app*.
 
